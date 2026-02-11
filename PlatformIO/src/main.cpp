@@ -2,6 +2,9 @@
 #include "WifiAp.h"
 #include "esp_camera.h"
 
+
+
+
 const char *WIFI_SSID = "Riego_243";
 const char *WIFI_PASSWORD = "primaram100";
 
