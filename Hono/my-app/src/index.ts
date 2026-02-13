@@ -22,7 +22,9 @@ app.post("/upload", async (c) => {
     const image = await Jimp.read(buffer);
 
     image.crop(1200, 820, 600, 120);
-    await image.grayscale().contrast(0.4).writeAsync("temp.jpg");
+    await image.grayscale()
+    .contrast(0.4)
+    .writeAsync("temp.jpg");
 
     const worker = await createWorker("eng");
 
