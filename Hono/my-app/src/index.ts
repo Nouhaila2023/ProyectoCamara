@@ -7,6 +7,10 @@ import { createWorker } from "tesseract.js";
 
 const app = new Hono();
 
+app.get("/hola", (c) => {
+  return c.text("¡Hola desde Hono!");
+});
+
 app.post("/upload", async (c) => {
   try {
     const body = await c.req.parseBody();
@@ -59,6 +63,7 @@ app.post("/upload", async (c) => {
 serve({
   fetch: app.fetch,
   port: 3001,
+  hostname: "0.0.0.0",
 });
 
 console.log("Servidor corriendo en http://localhost:3001");

@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",
+    "@tensorflow/tfjs": "^4.22.0",
     "hono": "^4.11.9",
     "jimp": "^0.22.10",
     "tesseract.js": "^7.0.0"
