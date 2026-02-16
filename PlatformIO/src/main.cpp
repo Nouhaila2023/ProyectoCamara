@@ -1,12 +1,12 @@
 #include <Arduino.h>
 #include "WifiAp.h"
 #include "esp_camera.h"
+#include <WiFi.h>
+#include <HTTPClient.h>
 
 
-
-
-const char *WIFI_SSID = "Riego_243";
-const char *WIFI_PASSWORD = "primaram100";
+const char *WIFI_SSID = "PRIMARAM";
+const char *WIFI_PASSWORD = "Me&43h8Dna?1PjR69-nQrH41";
 
 static const uint32_t PHOTO_INTERVAL_MS = 60UL * 60UL * 1000UL;
 
@@ -42,17 +42,7 @@ camera_config_t config = {
 };
 
 void takePhotoAndCollectData() {
-    // Inicializar cámara (solo la primera vez)
-    static bool cameraInitialized = false;
-    if (!cameraInitialized) {
-        esp_err_t err = esp_camera_init(&config);
-        if (err != ESP_OK) {
-            Serial.printf("Error inicializando cámara: 0x%x\n", err);
-            return;
-        }
-        cameraInitialized = true;
-        Serial.println("Cámara inicializada");
-    }
+    Serial.println("Tomando Foto");
 
     // Capturar imagen
     camera_fb_t *fb = esp_camera_fb_get();
@@ -61,9 +51,34 @@ void takePhotoAndCollectData() {
         return;
     }
 
-    Serial.printf("Foto tomada! Tamaño: %u bytes\n", fb->len);
+    if (WiFi.status() == WL_CONNECTED){
+        HTTPClient http;
+
+        //Ip
+        http.begin("http://192.168.0.148:3001/upload");
+
+        http.addHeader("Content-Type", "image/jpeg");
+
+        int httpResponseCode = http.POST(fb->buf, fb->len);
+
+        if (httpResponseCode > 0){
+            Serial.printf("Código HTTP: %d\n", httpResponseCode);
+
+            String response = http.getString();
+            Serial.println("Respuesta servidor:");
+            Serial.println(response);
+        }else{
+            Serial.printf("Error enviando POST: %s\n",
+                          http.errorToString(httpResponseCode).c_str());
+        }
+
+        http.end();
+    }else{
+        Serial.println("WiFi no conectado");
+    }
 
     Serial.println("Preparado para enviar a la nube...");
+
 
     esp_camera_fb_return(fb);
 
@@ -77,6 +92,14 @@ void setup()
     Serial.println("ESP32 Camera on");
 
     wifi.connect();
+
+    esp_err_t err = esp_camera_init(&config);
+    if (err != ESP_OK) {
+        Serial.printf("Error inicializando cámara", err);
+        while (true) {
+            delay(1000);
+        }
+    }
 
     lastPhotoMs = millis();
 }
